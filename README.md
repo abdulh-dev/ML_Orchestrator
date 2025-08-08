@@ -56,7 +56,8 @@ npm start
 ---
 
 ### ✅ Everything is now running!
-
+* Login Password Below V
+* AIzaSyD9iYDX5fqVhkFrG6ordW3iQEtoRisD3IM
 * Python agents handle data analysis and graphing.
 * Master orchestrator API routes and coordinates actions.
 * The frontend provides the UI interface to interact with the orchestrator.
@@ -64,3 +65,4 @@ npm start
 ---
 
 Let me know if you want this saved as an actual `README.md` file or want to include environment setup or `.env` instructions too.
+
