@@ -1,0 +1,106 @@
+ C:/Users/abdul/Desktop/ML_ORCHESTRATION/venv/Scripts/Activate.ps1
+
+
+docker-compose up -d
+python eda_agent.py
+python graphing_agent.py
+python master_orchestrator_api.py
+
+cd dashboard
+cd backend
+uvicorn backend.main:app --reload --port 8000
+
+cd dashboard
+cd frontend
+npm start
+
+------------------Create test dataset
+python -c "
+import pandas as pd
+import numpy as np
+np.random.seed(42)
+data = {
+    'age': np.random.normal(35, 10, 1000),
+    'income': np.random.normal(50000, 15000, 1000), 
+    'education': np.random.normal(16, 3, 1000),
+    'satisfaction': np.random.normal(7, 2, 1000),
+    'department': np.random.choice(['Engineering', 'Sales', 'Marketing'], 1000)
+}
+df = pd.DataFrame(data)
+df.to_csv('test_data.csv', index=False)
+print('✅ Test data created: test_data.csv')
+"
+
+---------Upload test Dataset
+curl.exe -X POST "http://localhost:8000/datasets/upload" `
+  -H "accept: application/json" `
+  -H "Content-Type: multipart/form-data" `
+  -F "file=@test_data.csv" `
+  -F "name=Test Employee Data"
+
+
+
+-------- Profile Dataset test
+# Define the JSON payload as a PowerShell object
+$body = @{
+    file_path    = "test_data.csv"
+    dataset_name = "Test Data"
+} | ConvertTo-Json
+
+# Send the request
+Invoke-RestMethod -Uri "http://localhost:8001/profile_dataset" `
+                  -Method Post `
+                  -ContentType "application/json" `
+                  -Body $body
+
+
+
+------ Statistical summary
+Invoke-RestMethod -Uri "http://localhost:8001/statistical_summary" `
+                  -Method Post `
+                  -ContentType "application/json" `
+                  -Body '{"file_path": "test_data.csv"}'
+
+
+-------------------- Data quality
+# Define the body of the request as a PowerShell object and convert it to JSON
+$body = @{
+    file_path = "test_data.csv"
+} | ConvertTo-Json
+
+# Send the request using Invoke-RestMethod
+Invoke-RestMethod -Uri "http://localhost:8001/data_quality" `
+                  -Method Post `
+                  -ContentType "application/json" `
+                  -Body $body
+
+---------------------------Histogram 
+$body = @{
+  file_path = "test_data.csv"
+  column    = "age"
+  title     = "Age Distribution"
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri "http://localhost:8002/histogram" -Method Post -Body $body -ContentType "application/json"
+
+--------------------------Scatterplot
+$body = @{
+  file_path    = "test_data.csv"
+  x_column     = "education"
+  y_column     = "income"
+  color_column = "department"
+  title        = "Education vs Income"
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri "http://localhost:8002/scatter_plot" -Method POST -Body $body -ContentType "application/json"
+
+------------------------- heatmap
+$body = @{
+  file_path = "test_data.csv"
+  title     = "Correlation Matrix"
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri "http://localhost:8002/correlation_heatmap" -Method POST -Body $body -ContentType "application/json"
+
+
+
